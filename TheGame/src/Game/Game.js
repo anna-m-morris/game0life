@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
+import "./game.css"
 
 const xAxis = 25 //rows
 const yAxis = 25 //collumns
@@ -17,7 +18,6 @@ class Cell {
             northWest: [x + 1, y - 1]
         }
         this.isAlive = false
-
     }
 }
 
@@ -26,7 +26,7 @@ const Game = () => {
         const cells = []
         for (let x = 0; x < xAxis; x++) {
             for (let y = 0; y < yAxis; y++) {
-                cells.push(new Cell(x,y))
+                cells.push(new Cell(x, y))
             }
         }
         return (cells)
@@ -34,7 +34,22 @@ const Game = () => {
 
     console.log(board)
     return (
-        <div>Here we go again</div>
+        <div className="board">{board.map(cell => {
+            return (<CellDiv
+                key={cell.location}
+                cell={cell} />)
+        })}</div>
+    )
+}
+
+const CellDiv = (props) => {
+    const [state, setState] = useState(false)
+    return (
+        <div className={state ? "alive" : "dead"}
+            onClick={() => {
+                props.cell.isAlive = !props.cell.isAlive
+                setState(!state)
+            }}></div>
     )
 }
 
