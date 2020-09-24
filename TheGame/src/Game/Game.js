@@ -1,89 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState } from "react"
+import produce from "immer"
 import "./game.css"
 
-const xAxis = 25 //rows
-const yAxis = 25 //collumns
+const rows = 25
+const collumns = 25
 
-class Cell {
-    constructor(x, y) {
-        this.location = [x, y]
-        this.neighbors = [
-            this.north = [x + 1, y],
-            this.northEast = [x + 1, y + 1],
-            this.east = [x, y + 1],
-            this.southEast = [x - 1, y + 1],
-            this.south = [x - 1, y],
-            this.southWest = [x - 1, y - 1],
-            this.west = [x, y - 1],
-            this.northWest = [x + 1, y - 1]
-        ]
-        this.isAlive = false
-    }
-}
+
+const possibleNeighbors = [[0, 1], [1, 1], [1, 0], [-1, 1], [0, -1], [-1, -1], [-1, 0], [1, -1]]
+
+
 
 const Game = () => {
-    const [board, setBoard] = useState(() => {
-        const cells = []
-        for (let x = 0; x < xAxis; x++) {
-            for (let y = 0; y < yAxis; y++) {
-                cells.push(new Cell(x, y))
-            }
-        }
-        return (cells)
-    })
+    const [running, setRunning] = useState(false)
+    const [gen, setGen] = useState(0)
 
-    const findByLocation = (board, location) => {
-        let result = {}
-        board.forEach(cell => {
-            if (location[0] === cell.location[0] && location[1] === cell.location[1]) {
-                result = cell
-            }
+
+
+    const newBoard = () => {
+        var board = []
+        for (let i = 0; i < rows; i++) {
+            board.push(Array.from(Array(collumns), () => 0))
+        }
+        return board
+    }
+    const [grid, setGrid] = useState(() => { return newBoard() })
+
+    const stepGame = () => {
+        setGrid((state) => {
+            return produce(state, newState => {
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < collumns; j++) {
+                        let neighbors = 0
+                        possibleNeighbors.forEach(([x, y]) => {
+                            const newI = i + x; const newJ = j + y
+                            if (newI >= 0 && newI < rows && newJ >= 0 && newJ < collumns) { neighbors += state[newI][newJ] }
+                        })
+                        if (neighbors < 2 || neighbors > 3) { newState[i][j] = 0 }
+                        else if (state[i][j] === 0 && neighbors === 3) { newState[i][j] = 1 }
+                    }
+                }
+            })
         })
-        return result
     }
 
 
-    console.log(board)
+
+
+    console.log(grid)
+
     return (<div>
-        <div className="board">{board.map(cell => {
-            return (<CellDiv
-                key={cell.location}
-                cell={cell}
-                board={board} />)
-        })}
-        </div>
-        <button
-            onClick={() => {
-                let newBoard = board.map((cell) => {
-                    let liveOnes = 0
-                    cell.neighbors.forEach((neighbor) => {
-                        let current = findByLocation(board, neighbor)
-                        if (current.isAlive === true) {
-                            liveOnes++
-                            console.log(liveOnes)
-                        }
-                    })
-                    if(liveOnes===2||liveOnes===3){cell.isAlive=true}
-                    else if (liveOnes<2||liveOnes>3){cell.isAlive=false}
-                    return cell
-                })
-                setBoard(newBoard)
-            }}>Run</button>
-        <button>Stop</button>
+        <div className="board">{grid.map((rows, i) =>
+            rows.map((cols, j) =>
+                <div key={`${i}-${j}`}
+                    onClick={() => {
+                        const newBoard = produce(grid, newGrid => {
+                            newGrid[i][j] = grid[i][j] ? 0 : 1
+                        })
+                        if (!running) { setGrid(newBoard) }
+                        console.log(newBoard)
+                    }}
+                    style={{ height: 20, width: 20, background: grid[i][j] ? 'black' : 'green', border: grid[i][j] ? 'solid 1px green' : 'solid 1px black' }} />
+            )
+        )}</div>
+        <button onClick = {stepGame}>step 1 gen</button>
     </div>
     )
 }
-
-const CellDiv = (props) => {
-    const [state, setState] = useState(false)
-    props.cell.isAlive=state
-    return (
-        <div className={state ? "alive" : "dead"}
-            onClick={() => {
-                setState(!state)
-                console.log(props.cell)
-            }}></div>
-    )
-}
-
 export default Game

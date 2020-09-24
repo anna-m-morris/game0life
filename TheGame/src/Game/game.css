@@ -2,13 +2,3 @@
     display:grid;
     grid-template-columns: repeat(25, 20px);
 }
-.dead {
-    width: 20px;
-    height: 20px;
-    background-color: black;
-}
-.alive {
-    background-color: green;
-    width: 20px;
-    height: 20px;
-}
