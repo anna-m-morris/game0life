@@ -4,11 +4,11 @@ import "./game.css"
 const possibleNeighbors = [[0, 1], [1, 1], [1, 0], [-1, 1], [0, -1], [-1, -1], [-1, 0], [1, -1]]
 
 const Game = () => {
-    const [running, setRunning] = useState(false)
-    const [gen, setGen] = useState(0)
-    const [speed, setSpeed] = useState(500)
     const [rows, setRows] = useState(25)
-    const [collumns, setCollumns] = useState(25)
+    const [columns, setColumns] = useState(25)
+    const [gen, setGen] = useState(0)
+    const [running, setRunning] = useState(false)
+    const [speed, setSpeed] = useState(500)
 
     const isRunning = useRef()
     isRunning.current = running
@@ -16,7 +16,7 @@ const Game = () => {
     const newBoard = () => {
         var board = []
         for (let i = 0; i < rows; i++) {
-            board.push(Array.from(Array(collumns), () => 0))
+            board.push(Array.from(Array(columns), () => 0))
         }
         return board
     }
@@ -26,14 +26,15 @@ const Game = () => {
         setGrid((state) => {
             return produce(state, newState => {
                 for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < collumns; j++) {
+                    for (let j = 0; j < columns; j++) {
                         let neighbors = 0
                         possibleNeighbors.forEach(([x, y]) => {
                             const newI = i + x; const newJ = j + y
-                            if (newI >= 0 && newI < rows && newJ >= 0 && newJ < collumns) { neighbors += state[newI][newJ] }
+                            if (newI >= 0 && newI < rows && newJ >= 0 && newJ < columns) { neighbors += state[newI][newJ] }
                         })
+                        if (state[i][j] && neighbors === 2) { newState[i][j] = 1 }
+                        if (neighbors === 3) { newState[i][j] = 1 }
                         if (neighbors < 2 || neighbors > 3) { newState[i][j] = 0 }
-                        else if (state[i][j] === 0 && neighbors === 3) { newState[i][j] = 1 }
                     }
                 }
             })
@@ -43,30 +44,13 @@ const Game = () => {
 
     const runGame = () => {
         if (!isRunning.current) { return }
-
-        setGrid((state) => {
-            return produce(state, newState => {
-                for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < collumns; j++) {
-                        let neighbors = 0
-                        possibleNeighbors.forEach(([x, y]) => {
-                            const newI = i + x; const newJ = j + y
-                            if (newI >= 0 && newI < rows && newJ >= 0 && newJ < collumns) { neighbors += state[newI][newJ] }
-                        })
-                        if (neighbors < 2 || neighbors > 3) { newState[i][j] = 0 }
-                        else if (state[i][j] === 0 && neighbors === 3) { newState[i][j] = 1 }
-                    }
-                }
-                console.log(isRunning.current)
-            })
-        })
-        setGen(gen => gen + 1)
+        stepGame()
         setTimeout(runGame, speed)
-
     }
 
     const clearBoard = () => {
         setGrid(() => { return newBoard() })
+        setRunning(false)
         setGen(0)
     }
 
@@ -75,12 +59,10 @@ const Game = () => {
         setGrid((state) => {
             return produce(state, newState => {
                 for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < collumns; j++) {
-                        
+                    for (let j = 0; j < columns; j++) {
+
                         let random = Math.floor((Math.random()) * 2)
-                        console.log(random)
-                        if (random) { newState[i][j] = 1 }
-                        else { newState[i][j] = 0 }
+                        newState[i][j] = random
                     }
                 }
             })
@@ -90,32 +72,29 @@ const Game = () => {
     const changeSpeed = (event) => {
         setSpeed(event.target.value)
     }
+
     const changeRow = (event) => {
         setRows(event.target.value)
         setGrid(() => { return newBoard() })
     }
-    const changeCollumn = (event) => {
-        setCollumns(event.target.value)
+
+    const changeColumn = (event) => {
+        setColumns(event.target.value)
+        console.log(columns)
         setGrid(() => { return newBoard() })
+        console.log(grid)
     }
-
-
-
-    console.log(grid)
 
     return (<div>
         <div>{`Current Generation: ${gen}`}</div>
-        <div className="board">{grid.map((rows, i) =>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${rows}, 20px)` }}>{grid.map((rows, i) =>
             rows.map((cols, j) =>
                 <div key={`${i}-${j}`}
                     onClick={() => {
-                        console.log()
                         const newBoard = produce(grid, newGrid => {
                             newGrid[i][j] = grid[i][j] ? 0 : 1
                         })
                         if (!running) { setGrid(newBoard) }
-                        console.log(newBoard)
-                        console.log(running)
                     }}
                     style={{ height: 20, width: 20, background: grid[i][j] ? 'green' : 'black', border: grid[i][j] ? 'solid 1px black' : 'solid 1px green' }} />
             )
@@ -139,7 +118,7 @@ const Game = () => {
         <button onClick={clearBoard}>Clear</button><br />
         <span>Speed (multiples of 100): </span><input onChange={changeSpeed} value={speed} /><br />
         <span>Row length: </span><input onChange={changeRow} value={rows}></input><br />
-        <span>Collumn height: </span><input onChange={changeCollumn} value={collumns}></input>
+        <span>Column height: </span><input onChange={changeColumn} value={columns}></input>
     </div>
     )
 }
