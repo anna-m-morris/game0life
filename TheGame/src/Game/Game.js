@@ -74,21 +74,21 @@ const Game = () => {
     }
 
     const changeRow = (event) => {
+        clearBoard()
         setRows(event.target.value)
         setGrid(() => { return newBoard() })
     }
 
     const changeColumn = (event) => {
         setColumns(event.target.value)
-        console.log(columns)
         setGrid(() => { return newBoard() })
-        console.log(grid)
+        console.log()
     }
 
     return (<div>
         <div>{`Current Generation: ${gen}`}</div>
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${rows}, 20px)` }}>{grid.map((rows, i) =>
-            rows.map((cols, j) =>
+            rows.map((columns, j) =>
                 <div key={`${i}-${j}`}
                     onClick={() => {
                         const newBoard = produce(grid, newGrid => {
@@ -118,7 +118,7 @@ const Game = () => {
         <button onClick={clearBoard}>Clear</button><br />
         <span>Speed (multiples of 100): </span><input onChange={changeSpeed} value={speed} /><br />
         <span>Row length: </span><input onChange={changeRow} value={rows}></input><br />
-        <span>Column height: </span><input onChange={changeColumn} value={columns}></input>
+        <span>Column height: </span><input type="number" onChange={changeColumn} value={columns}></input>
     </div>
     )
 }
