@@ -1,4 +1,0 @@
-.board{
-    display:grid;
-    grid-template-columns: repeat(25, 20px);
-}

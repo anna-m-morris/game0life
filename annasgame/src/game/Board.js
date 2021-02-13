@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import produce from "immer";
-import "./board.css";
 const possibleNeighbors = [
   [0, 1],
   [1, 1],
@@ -113,7 +112,7 @@ const Board = () => {
   };
 
   return (
-    <div>
+    <div className="board">
       <div>{`Current Generation: ${gen}`}</div>
       <div
         style={{
@@ -134,8 +133,8 @@ const Board = () => {
                 }
               }}
               style={{
-                height: 20,
-                width: 20,
+                height: 18,
+                width: 18,
                 background: grid[i][j] ? "green" : "black",
                 border: grid[i][j] ? "solid 1px black" : "solid 1px green",
               }}
