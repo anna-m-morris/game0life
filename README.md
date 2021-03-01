@@ -47,7 +47,7 @@ npm test
 
 ## Built With
 
-*react.js
+* react.js
 
 ## Acknowledgments
 
